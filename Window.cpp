@@ -1,4 +1,5 @@
 #include "Window.hpp"
+#include <iostream>
 
 Window::Window(const short x, const short y, const short width, const short height)
     : m_out(GetStdHandle(STD_OUTPUT_HANDLE)),
@@ -43,6 +44,22 @@ void Window::resize(const short width, const short height)
     m_windowSize = { width, height };
 }
 
+void Window::onMouseButtonClick(MouseButton button) {
+
+}
+
+void Window::onKeyPressed(Key key) {
+
+}
+
+void Window::onKeyReleased(Key key) {
+
+}
+
+void Window::onMouseMove(const short x, const short y) {
+
+}
+
 void Window::resizePlace(const short width, const short height)
 {
     if(width >= m_placeSize.X && height >= m_placeSize.Y){ /// „u„ƒ„|„y „r„r„€„t„y„}„„u „‚„p„x„}„u„‚„ „q„€„|„Ž„Š„u „~„„~„u„Š„~„y„‡: „y„x„}„u„~„‘„u„} „‚„p„x„}„u„‚ „q„…„†„u„‚„p, „y„x„}„u„~„‘„u„} „‚„p„x„}„u„‚ „€„{„~„p
@@ -79,5 +96,39 @@ void Window::resizeRect(const short width, const short height)
     SMALL_RECT size = { 0, 0, short(width - 1), short(height - 1) };
     if (!SetConsoleWindowInfo(m_out, true, &size)) {
         MessageBoxA(nullptr, "Rect resizing error!", "Alarm", MB_ICONERROR);
+    }
+}
+
+void windowEventProc(Window *window)
+{
+    INPUT_RECORD ir;
+    DWORD n;
+
+    while (ir.Event.KeyEvent.wVirtualKeyCode != VK_ESCAPE)
+    {
+        WaitForSingleObject(window->m_in, INFINITE);
+        ReadConsoleInputA(window->m_in, &ir, 1, &n);
+
+        switch (ir.EventType)
+        {
+        case MOUSE_EVENT:
+            if (ir.Event.MouseEvent.dwEventFlags == MOUSE_MOVED) {
+                window->onMouseMove(ir.Event.MouseEvent.dwMousePosition.X, ir.Event.MouseEvent.dwMousePosition.Y);
+            } else if (ir.Event.MouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED) {
+                window->onMouseButtonClick(MouseButton::LEFT);
+            } else if (ir.Event.MouseEvent.dwButtonState == RIGHTMOST_BUTTON_PRESSED) {
+                window->onMouseButtonClick(MouseButton::RIGHT); break;
+            }
+            break;
+        case KEY_EVENT:
+            if (ir.Event.KeyEvent.bKeyDown) {
+                window->onKeyPressed({ ir.Event.KeyEvent.uChar.AsciiChar, ir.Event.KeyEvent.wVirtualKeyCode });
+            } else {
+                window->onKeyReleased({ ir.Event.KeyEvent.uChar.AsciiChar, ir.Event.KeyEvent.wVirtualKeyCode });
+            }
+            break;
+        case CLOSE_EVENT:
+            return;
+        }
     }
 }
