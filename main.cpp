@@ -1,9 +1,9 @@
-#include <iostream>
+#include "Window.hpp"
 
 using namespace std;
 
 int main()
 {
-    cout << "Hello World!" << endl;
+    Window wnd;
     return 0;
 }
