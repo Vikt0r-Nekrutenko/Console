@@ -1,43 +1,36 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
-#include <windows.h>
+#include <vector>
+#include "BasicTemplate.hpp"
 
-#define CENTER 0xfff
 #define CLOSE_EVENT 0xFF
 
-enum class MouseButton {
-    LEFT = 0x0001,
-    RIGHT = 0x0002,
-};
+constexpr short CENTER { 0xfff };
+constexpr short DEF_WND_WIDTH { 640 };
+constexpr short DEF_WND_HEIGHT{ 480 };
 
-struct Key {
-    char symbol;
-    unsigned short keyCode;
-};
+class Box;
 
-class Window
+class Window : public BasicTemplate
 {
     friend void windowEventProc(Window *window);
 public:
-    Window(const short x = CENTER, const short y = CENTER, const short width = 640, const short height = 480);
-    virtual ~Window() = default;
-    void resize(const short width, const short height);
+    Window(const short x = CENTER, const short y = CENTER, const short width = DEF_WND_WIDTH, const short height = DEF_WND_HEIGHT);
+    void resize(const short width, const short height) override;
+    void move(const short x, const short y) override;
+    const HANDLE &out() const;
 
 protected:
-    virtual void onMouseMove(const short x, const short y);
-    virtual void onMouseButtonClick(MouseButton button);
-    virtual void onKeyPressed(Key key);
-    virtual void onKeyReleased(Key key);
+    std::vector <Box *> m_controls;
+    COORD m_windowSize, m_placeSize;
+    HANDLE m_out, m_in;
+    HWND m_wnd;
 
 private:
     void resizePlace(const short width, const short height);
     void resizeBuffer(const short width, const short height);
     void resizeRect(const short width, const short height);
-
-    COORD m_windowSize, m_placeSize;
-    HANDLE m_out, m_in;
-    HWND m_wnd;
 };
 
 void windowEventProc(Window *window);

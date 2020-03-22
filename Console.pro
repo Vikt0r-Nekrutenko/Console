@@ -4,8 +4,14 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
+        BasicTemplate.cpp \
+        Box.cpp \
+        Event.cpp \
         Window.cpp \
         main.cpp
 
 HEADERS += \
+    BasicTemplate.hpp \
+    Box.hpp \
+    Event.hpp \
     Window.hpp
