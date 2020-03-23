@@ -19,7 +19,7 @@ struct KeyRecord {
 struct MouseRecord {
     MouseButton button;
     COORD position;
-    bool isReleased;
+    bool isPressed;
 };
 
 class BasicTemplate

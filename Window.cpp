@@ -26,6 +26,7 @@ Window::Window(const short x, const short y, const short width, const short heig
                true);
 
     resize(width, height);
+    setCursorParams();
 }
 
 void Window::resize(const short width, const short height)
@@ -64,6 +65,20 @@ void Window::setFontParams(const short width, const short height, const bool isB
     SetCurrentConsoleFontEx(m_out, FALSE, &fontInfo);
 
     resizePlace(short(m_windowSize.X / width), short(m_windowSize.Y / height));
+}
+
+void Window::setCursorParams(const bool isVisible, const short size) const
+{
+    CONSOLE_CURSOR_INFO inf;
+    inf.dwSize = DWORD(size);
+    SetConsoleCursorInfo(m_out, &inf);
+    inf.bVisible = isVisible;
+    SetConsoleCursorInfo(m_out, &inf);
+}
+
+void Window::setCursorPosition(const short x, const short y) const
+{
+    SetConsoleCursorPosition(m_out, { x, y });
 }
 
 void Window::resizePlace(const short width, const short height)

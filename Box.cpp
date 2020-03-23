@@ -4,7 +4,7 @@
 Box::Box(const Window *parent, const short x, const short y, const short width, const short height)
     : m_color(Color::DARK_BLUE),
       m_rect(nullptr),
-      m_parent { parent }
+      m_parent { const_cast<Window *>(parent) }
 {
     m_size.X = width  < 3 ? 3 : width;
     m_size.Y = height < 3 ? 3 : height;
@@ -36,7 +36,7 @@ void Box::resize(const short width, const short height)
     m_size.Y = height < 3 ? 3 : height;
 
     m_rect = new CHAR_INFO[m_size.X * m_size.Y];
-    fill(m_color, '#');
+    fill(m_color, ' ');
 
     for (short y = 0; y < m_size.Y; y++) {
         for (short x = 0; x < m_size.X; x++) {

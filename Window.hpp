@@ -26,6 +26,8 @@ public:
     void resize(const short width, const short height) override;
     void move(const short x, const short y) override;
     void setFontParams(const short width = 8, const short height = 12, const bool isBold = false, const wchar_t *fontFaceName = Terminal);
+    void setCursorParams(const bool isVisible = false, const short size = 1) const;
+    void setCursorPosition(const short x, const short y) const;
     const HANDLE &out() const;
 
 protected:

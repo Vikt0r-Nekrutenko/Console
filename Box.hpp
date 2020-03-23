@@ -34,12 +34,12 @@ public:
     Box(const Window *parent, const short x, const short y, const short width, const short height);
     ~Box() override;
 
+    virtual void show();
+    virtual void activate();
+    virtual void deactivate();
     void resize(const short width, const short height) override;
     void move(const short x, const short y) override;
     void fill( const Color color = Color::BLACK, const char symbol = UNDEF_SYMBOL);
-    void show();
-    void activate();
-    void deactivate();
 
     CHAR_INFO &get(const short x, const short y);
     const SMALL_RECT &getFrame() const;
@@ -49,12 +49,12 @@ public:
 protected:
 
     SMALL_RECT m_frame;
-    COORD      m_offset;
+    COORD      m_offset = { 0, 0 };
     COORD      m_size;
     COORD      m_position;
     Color      m_color;
     CHAR_INFO *m_rect;
-    const Window    *m_parent;
+    Window    *m_parent;
 };
 
 #endif // BOX_HPP

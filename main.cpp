@@ -1,5 +1,5 @@
 #include "Window.hpp"
-#include "Box.hpp"
+#include "InputBox.hpp"
 #include <vector>
 #include <iostream>
 
@@ -9,8 +9,8 @@ class my_window : public Window {
 public:
     my_window()
         : Window(),
-          box1{ new Box(this,  0, 0, 10, 5) },
-          box2{ new Box(this, 12, 0, 10, 5) }
+          box1{ new InputBox(this,  0, 0, 10, 5) },
+          box2{ new InputBox(this, 12, 0, 10, 4) }
     {
         m_controls.push_back(box1);
         m_controls.push_back(box2);
@@ -21,7 +21,6 @@ public:
 
         box1->show();
         box2->show();
-
     }
     ~my_window() override
     {
@@ -29,27 +28,19 @@ public:
         delete box1;
     }
 
-    void onBox2KeyPressed(const KeyRecord kr)
-    {
-        if (kr.isPressed) {
-            box2->fill(Color::RED);
-        } else {
-            box2->fill(Color::GREEN);
-        }
-        box2->show();
-    }
+    void onBox2KeyPressed(const KeyRecord kr) { }
 
-    void onBox1Clicked(const MouseRecord rect) {
-        if (rect.isReleased) {
-            setFontParams(8, 12, false, Terminal);
-        }
-    }
+    void onBox1Clicked(const MouseRecord rect) { }
 
     void onBox2Clicked(const MouseRecord rect) {
-
+        if (rect.button == MouseButton::RIGHT && rect.isPressed)
+        {
+            box2->resize(3 + rand()% 20, 3 + rand()% 20);
+            MessageBoxA(m_wnd, box2->getText().c_str(), "", MB_OK);
+        }
     }
 
-    Box *box1, *box2;
+    InputBox *box1, *box2;
 };
 
 int main()
