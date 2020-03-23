@@ -50,6 +50,22 @@ void Window::move(const short x, const short y)
     MoveWindow(m_wnd, x, y, m_windowSize.X, m_windowSize.Y, true);
 }
 
+void Window::setFontParams(const short width, const short height, const bool isBold, const wchar_t *fontFaceName)
+{
+    CONSOLE_FONT_INFOEX fontInfo;
+    ZeroMemory(&fontInfo, sizeof(CONSOLE_FONT_INFOEX));
+    fontInfo.cbSize = sizeof(CONSOLE_FONT_INFOEX);
+
+    lstrcpyW(fontInfo.FaceName, fontFaceName);
+    fontInfo.FontFamily = (wcscmp(fontFaceName, L"Terminal")) ? 54 : FF_MODERN;
+    fontInfo.FontWeight = isBold ? FW_BOLD : FW_NORMAL;
+    fontInfo.dwFontSize.X = width;
+    fontInfo.dwFontSize.Y = height;
+    SetCurrentConsoleFontEx(m_out, FALSE, &fontInfo);
+
+    resizePlace(short(m_windowSize.X / width), short(m_windowSize.Y / height));
+}
+
 void Window::resizePlace(const short width, const short height)
 {
     if(width >= m_placeSize.X && height >= m_placeSize.Y){ /// „u„ƒ„|„y „r„r„€„t„y„}„„u „‚„p„x„}„u„‚„ „q„€„|„Ž„Š„u „~„„~„u„Š„~„y„‡: „y„x„}„u„~„‘„u„} „‚„p„x„}„u„‚ „q„…„†„u„‚„p, „y„x„}„u„~„‘„u„} „‚„p„x„}„u„‚ „€„{„~„p

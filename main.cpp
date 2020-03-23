@@ -10,7 +10,7 @@ public:
     my_window()
         : Window(),
           box1{ new Box(this,  0, 0, 10, 5) },
-          box2{ new Box(this, m_placeSize.X - 10, 0, 10, 5) }
+          box2{ new Box(this, 12, 0, 10, 5) }
     {
         m_controls.push_back(box1);
         m_controls.push_back(box2);
@@ -40,7 +40,9 @@ public:
     }
 
     void onBox1Clicked(const MouseRecord rect) {
-
+        if (rect.isReleased) {
+            setFontParams(8, 12, false, Terminal);
+        }
     }
 
     void onBox2Clicked(const MouseRecord rect) {
