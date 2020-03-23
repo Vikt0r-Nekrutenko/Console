@@ -53,15 +53,13 @@ void Box::resize(const short width, const short height)
     get(m_size.X - 1, 0).Char.AsciiChar             = char(191); // „¢
     get(0, m_size.Y - 1).Char.AsciiChar             = char(192); // „¤
     get(m_size.X - 1, m_size.Y - 1).Char.AsciiChar  = char(217); // „£
-
-    show();
 }
 
 void Box::move(const short x, const short y)
 {
     fill(); show();
     m_position = { x, y };
-    fill(m_color); show();
+    fill(m_color);
 }
 
 void Box::fill(const Color color, const char symbol)

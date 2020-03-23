@@ -170,22 +170,22 @@ void windowEventProc(Window *window)
 
             if (ir.Event.MouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED) {
                 if (findControl()){
-                    activeControl->mouseEventHandler(window, { MouseButton::LEFT, ir.Event.MouseEvent.dwMousePosition, bool(ir.Event.MouseEvent.dwButtonState ) });
+                    activeControl->mouseEventHandler(window, { MouseButton::LEFT, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
                 } else {
-                    window->mouseEventHandler(window, { MouseButton::LEFT, ir.Event.MouseEvent.dwMousePosition, bool(ir.Event.MouseEvent.dwButtonState ) });
+                    window->mouseEventHandler(window, { MouseButton::LEFT, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
                 }
             } else if (ir.Event.MouseEvent.dwButtonState == RIGHTMOST_BUTTON_PRESSED) {
                 if (findControl()){
-                    activeControl->mouseEventHandler(window, { MouseButton::RIGHT, ir.Event.MouseEvent.dwMousePosition, bool(ir.Event.MouseEvent.dwButtonState ) });
+                    activeControl->mouseEventHandler(window, { MouseButton::RIGHT, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
                 } else {
-                    window->mouseEventHandler(window, { MouseButton::RIGHT, ir.Event.MouseEvent.dwMousePosition, bool(ir.Event.MouseEvent.dwButtonState ) });
+                    window->mouseEventHandler(window, { MouseButton::RIGHT, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
                 }
             }
             if (ir.Event.MouseEvent.dwEventFlags == MOUSE_MOVED) {
                 if (activeControl != nullptr && cursorInControl(activeControl)){
-                    activeControl->mouseEventHandler(window, { MouseButton::NONE, ir.Event.MouseEvent.dwMousePosition,  bool(ir.Event.MouseEvent.dwButtonState) });
+                    activeControl->mouseEventHandler(window, { MouseButton::NONE, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
                 } else {
-                    window->mouseEventHandler(window, { MouseButton::NONE, ir.Event.MouseEvent.dwMousePosition,  bool(ir.Event.MouseEvent.dwButtonState) });
+                    window->mouseEventHandler(window, { MouseButton::NONE, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
                 }
             }
             break;

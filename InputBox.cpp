@@ -31,7 +31,7 @@ void InputBox::deactivate()
 void InputBox::resize(const short width, const short height)
 {
     Box::resize(width, height);
-    m_lenVisibleText = size_t((width - 2) * (height - 2) - 1);
+    m_lenVisibleText = size_t((m_size.X - 2) * (m_size.Y - 2) - 1);
     m_lastSymbol = m_text.length();
     m_innerCursor = (m_text.length() > m_lenVisibleText) ? m_lenVisibleText : m_lastSymbol;
     m_firstSymbol = (short(m_lastSymbol - m_lenVisibleText) > 0) ? m_lastSymbol - m_lenVisibleText : 0ull;
@@ -42,9 +42,11 @@ void InputBox::resize(const short width, const short height)
 void InputBox::setText(const std::string &text)
 {
     m_text = text;
-    for (size_t i = 0; i < m_text.length() && i < m_lenVisibleText; i++) {
-        get(i).Char.AsciiChar = m_text.at(i);
-    }
+    m_symbolInText = m_lastSymbol = m_text.length();
+    m_innerCursor = (m_text.length() > m_lenVisibleText) ? m_lenVisibleText : m_lastSymbol;
+    m_firstSymbol = (short(m_lastSymbol - m_lenVisibleText) > 0) ? m_lastSymbol - m_lenVisibleText : 0ull;
+
+    showText();
 }
 
 void InputBox::keyEventHandler(Window *sender, const KeyRecord keyRecord)
@@ -67,9 +69,13 @@ void InputBox::keyEventHandler(Window *sender, const KeyRecord keyRecord)
 
 CHAR_INFO &InputBox::get(const size_t index)
 {
-    size_t x = size_t(index / size_t(m_size.X - 2));
-    size_t y = size_t(index % size_t(m_size.X - 2));
-    return m_rect[size_t(m_size.X) * (x + 1) + (y + 1)];
+    size_t x = size_t(index % size_t(m_size.X - 2));
+    size_t y = size_t(index / size_t(m_size.X - 2));
+
+    if (x >= size_t(m_size.X - 2)) x = size_t(m_size.X - 3);
+    if (y >= size_t(m_size.Y - 2)) y = size_t(m_size.Y - 3);
+
+    return m_rect[size_t(m_size.X) * (y + 1) + (x + 1)];
 }
 
 const std::string &InputBox::getText() const

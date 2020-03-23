@@ -20,6 +20,7 @@ public:
         box2->keyEvent   = TKeyEventHandler(&my_window::onBox2KeyPressed);
 
         box1->show();
+        box2->setText("some text and something else!");
         box2->show();
     }
     ~my_window() override
@@ -35,7 +36,8 @@ public:
     void onBox2Clicked(const MouseRecord rect) {
         if (rect.button == MouseButton::RIGHT && rect.isPressed)
         {
-            box2->resize(3 + rand()% 20, 3 + rand()% 20);
+            box2->resize(rand()% 20, rand()% 20);
+        } else if (rect.button == MouseButton::LEFT && rect.isPressed) {
             MessageBoxA(m_wnd, box2->getText().c_str(), "", MB_OK);
         }
     }

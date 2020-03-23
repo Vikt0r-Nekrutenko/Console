@@ -14,6 +14,7 @@ public:
     void resize(const short width, const short height) override;
     void setText(const std::string &text);
     void keyEventHandler(Window *sender, const KeyRecord keyRecord) override;
+
     CHAR_INFO &get(const size_t index);
     const std::string &getText() const;
 
