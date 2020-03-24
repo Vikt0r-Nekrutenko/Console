@@ -41,12 +41,12 @@ public:
     void move(const short x, const short y) override;
     void fill( const Color color = Color::BLACK, const char symbol = UNDEF_SYMBOL);
 
-    CHAR_INFO &get(const short x, const short y);
     const SMALL_RECT &getFrame() const;
 
     using BasicTemplate::keyEvent;
     using BasicTemplate::mouseEvent;
 protected:
+    CHAR_INFO &get(const short x, const short y);
 
     SMALL_RECT m_frame;
     COORD      m_offset = { 0, 0 };

@@ -3,7 +3,8 @@
 
 InputBox::InputBox(const Window *parent, const short x, const short y, const short width, const short height)
     : Box(parent, x, y, width, height),
-      m_lenVisibleText(size_t((width - 2) * (height - 2)) - 1)
+      m_lenVisibleText(size_t((width - 2) * (height - 2)) - 1),
+      m_lastSymbol(m_lenVisibleText)
 {
 
 }
@@ -12,7 +13,6 @@ void InputBox::show()
 {
     showText();
     Box::show();
-    moveCursor();
 }
 
 void InputBox::activate()
@@ -46,25 +46,71 @@ void InputBox::setText(const std::string &text)
     m_innerCursor = (m_text.length() > m_lenVisibleText) ? m_lenVisibleText : m_lastSymbol;
     m_firstSymbol = (short(m_lastSymbol - m_lenVisibleText) > 0) ? m_lastSymbol - m_lenVisibleText : 0ull;
 
-    showText();
+    show();
 }
 
 void InputBox::keyEventHandler(Window *sender, const KeyRecord keyRecord)
 {
+    /*{
+        m_parent->setCursorPosition(50, 0);
+        printf("                        ");
+        m_parent->setCursorPosition(50, 0);
+        printf("first: %d", m_firstSymbol);
+        m_parent->setCursorPosition(50, 1);
+        printf("                        ");
+        m_parent->setCursorPosition(50, 1);
+        printf("last: %d", m_lastSymbol);
+        m_parent->setCursorPosition(50, 2);
+        printf("                        ");
+        m_parent->setCursorPosition(50, 2);
+        printf("in txt: %d", m_symbolInText);
+        m_parent->setCursorPosition(50, 3);
+        printf("                        ");
+        m_parent->setCursorPosition(50, 3);
+        printf("txt: %d", m_text.length());
+    }*/
+
     if (keyRecord.isPressed && !isControlKeyPressed(keyRecord.keyCode)) {
         if ((keyRecord.symbol >= '0' && keyRecord.symbol <= 'z') || keyRecord.keyCode == VK_SPACE) {
-            m_text.insert(m_symbolInText++, 1, keyRecord.symbol);
-            m_lastSymbol++;
+            m_text.insert(m_symbolInText, 1, keyRecord.symbol);
 
+            if (m_lastSymbol <= m_text.length()) {
+                m_lastSymbol++;
+            }
             if (m_text.length() > m_lenVisibleText) {
                 m_firstSymbol++;
             } else {
                 scrollRight();
             }
             show();
+            moveCursor();
         }
     }
     keyEvent.call(sender, keyRecord);
+
+    /*{
+        m_parent->setCursorPosition(50, 0);
+        printf("                        ");
+        m_parent->setCursorPosition(50, 0);
+        printf("first: %d", m_firstSymbol);
+        m_parent->setCursorPosition(50, 1);
+        printf("                        ");
+        m_parent->setCursorPosition(50, 1);
+        printf("last: %d", m_lastSymbol);
+        m_parent->setCursorPosition(50, 2);
+        printf("                        ");
+        m_parent->setCursorPosition(50, 2);
+        printf("in txt: %d", m_symbolInText);
+        m_parent->setCursorPosition(50, 3);
+        printf("                        ");
+        m_parent->setCursorPosition(50, 3);
+        printf("txt: %d", m_text.length());
+        m_parent->setCursorPosition(50, 4);
+        printf("                        ");
+        m_parent->setCursorPosition(50, 4);
+        printf("inner: %d", m_innerCursor);
+        moveCursor();
+    }*/
 }
 
 CHAR_INFO &InputBox::get(const size_t index)
@@ -90,12 +136,14 @@ bool InputBox::isControlKeyPressed(unsigned short key)
     {
         scrollLeft();
         show();
+        moveCursor();
         return true;
     }
     case VK_RIGHT:
     {
         scrollRight();
         show();
+        moveCursor();
         return true;
     }
     case VK_BACK:
@@ -105,6 +153,7 @@ bool InputBox::isControlKeyPressed(unsigned short key)
         }
         scrollLeft();
         show();
+        moveCursor();
         return true;
     }
     case VK_DELETE:
@@ -113,6 +162,7 @@ bool InputBox::isControlKeyPressed(unsigned short key)
             m_text.erase(m_symbolInText + 1, 1);
         }
         show();
+        moveCursor();
         return true;
     }
     default:
@@ -142,7 +192,7 @@ void InputBox::scrollRight()
     if (m_symbolInText < m_text.length()) {
         m_symbolInText++;
     }
-    if(m_innerCursor < m_lenVisibleText && m_innerCursor < m_text.length()) {
+    if (m_innerCursor < m_lenVisibleText && m_innerCursor < m_text.length() - m_firstSymbol) {
         m_innerCursor++;
     } else {
         if (m_lastSymbol - m_firstSymbol == m_lenVisibleText + 1) m_firstSymbol++;

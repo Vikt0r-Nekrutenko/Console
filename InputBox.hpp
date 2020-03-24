@@ -13,19 +13,18 @@ public:
     void deactivate() override;
     void resize(const short width, const short height) override;
     void setText(const std::string &text);
-    void keyEventHandler(Window *sender, const KeyRecord keyRecord) override;
 
-    CHAR_INFO &get(const size_t index);
     const std::string &getText() const;
 
 protected:
+    size_t m_lenVisibleText = 0ull;
     size_t m_symbolInText = 0ull, m_innerCursor = 0ull;
     size_t m_firstSymbol  = 0ull, m_lastSymbol  = 0ull;
-    size_t m_lenVisibleText = 0ull;
     std::string m_text;
 
-private:
-    bool isControlKeyPressed(unsigned short key);
+    CHAR_INFO &get(const size_t index);
+    virtual bool isControlKeyPressed(unsigned short key);
+    void keyEventHandler(Window *sender, const KeyRecord keyRecord) override;
     void showText();
     void moveCursor();
     void scrollRight();

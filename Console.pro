@@ -8,6 +8,8 @@ SOURCES += \
         Box.cpp \
         Event.cpp \
         InputBox.cpp \
+        NumericBox.cpp \
+        OutputBox.cpp \
         Window.cpp \
         main.cpp
 
@@ -16,4 +18,6 @@ HEADERS += \
     Box.hpp \
     Event.hpp \
     InputBox.hpp \
+    NumericBox.hpp \
+    OutputBox.hpp \
     Window.hpp
