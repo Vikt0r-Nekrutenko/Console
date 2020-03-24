@@ -25,6 +25,7 @@ protected:
     std::string m_text;
 
 private:
+    bool isControlKeyPressed(unsigned short key);
     void showText();
     void moveCursor();
     void scrollRight();

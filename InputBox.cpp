@@ -51,7 +51,7 @@ void InputBox::setText(const std::string &text)
 
 void InputBox::keyEventHandler(Window *sender, const KeyRecord keyRecord)
 {
-    if (keyRecord.isPressed) {
+    if (keyRecord.isPressed && !isControlKeyPressed(keyRecord.keyCode)) {
         if ((keyRecord.symbol >= '0' && keyRecord.symbol <= 'z') || keyRecord.keyCode == VK_SPACE) {
             m_text.insert(m_symbolInText++, 1, keyRecord.symbol);
             m_lastSymbol++;
@@ -83,8 +83,73 @@ const std::string &InputBox::getText() const
     return m_text;
 }
 
+bool InputBox::isControlKeyPressed(unsigned short key)
+{
+    switch (key) {
+    case VK_LEFT:
+    {
+        if(m_innerCursor == 0) {
+            if(m_lastSymbol > m_lenVisibleText) {
+                m_lastSymbol--;
+            }
+            if(m_firstSymbol != 0) {
+                m_firstSymbol--;
+            }
+        }
+        if(m_symbolInText > 0) {
+            m_symbolInText--;
+        }
+        scrollLeft();
+        show();
+        return true;
+    }
+    case VK_RIGHT:
+    {
+        if(m_innerCursor == m_lenVisibleText){
+            if(m_lastSymbol < m_text.length()) {
+                m_lastSymbol++;
+            }
+            if(m_lastSymbol - m_firstSymbol - 1 >= m_lenVisibleText) {
+                m_firstSymbol++;
+            }
+        }
+        if(m_symbolInText < m_text.length()) {
+            m_symbolInText++;
+        }
+        scrollRight();
+        show();
+        return true;
+    }
+    case VK_BACK:
+    {
+        if(!m_text.empty()) {
+            if(m_symbolInText > 0) {
+                m_symbolInText--;
+                m_text.erase(m_symbolInText, 1);
+
+                if (m_text.length() < m_lenVisibleText || m_lastSymbol > m_text.length()) {
+                    m_lastSymbol--;
+                }
+                if(m_firstSymbol != 0) {
+                    m_firstSymbol--;
+                } else {
+                    scrollLeft();
+                }
+                show();
+            }
+        }
+        return true;
+    }
+    default:
+        return false;
+    }
+}
+
 void InputBox::showText()
 {
+    for (size_t i = 0; i < m_lenVisibleText; i++) {
+        get(i).Char.AsciiChar = ' ';
+    }
     for(size_t i = m_firstSymbol, j = 0; i < m_lastSymbol; i++, j++) {
         get(j).Char.AsciiChar = m_text.at(i);
     }
