@@ -9,7 +9,6 @@ Box::Box(const Window *parent, const short x, const short y, const short width, 
     m_size.X = width  < 3 ? 3 : width;
     m_size.Y = height < 3 ? 3 : height;
 
-    m_position = { x, y };
     m_frame = {x, y, short(x + m_size.X), short(y + m_size.Y)};
 
     resize(m_size.X, m_size.Y);
@@ -58,8 +57,8 @@ void Box::resize(const short width, const short height)
 void Box::move(const short x, const short y)
 {
     fill(); show();
-    m_position = { x, y };
-    fill(m_color);
+    m_frame = { x, y, short(x + m_size.X), short(y + m_size.Y) };
+    fill(m_color); show();
 }
 
 void Box::fill(const Color color, const char symbol)
@@ -72,8 +71,7 @@ void Box::fill(const Color color, const char symbol)
 
 void Box::show()
 {
-    m_frame = { m_position.X, m_position.Y, short(m_position.X + m_size.X), short(m_position.Y + m_size.Y) };
-    WriteConsoleOutputA(m_parent->out(), m_rect, m_size, m_offset, &m_frame);
+    WriteConsoleOutputA(m_parent->out(), m_rect, m_size, { 0, 0 }, &m_frame);
 }
 
 void Box::activate()

@@ -49,9 +49,7 @@ protected:
     CHAR_INFO &get(const short x, const short y);
 
     SMALL_RECT m_frame;
-    COORD      m_offset = { 0, 0 };
     COORD      m_size;
-    COORD      m_position;
     Color      m_color;
     CHAR_INFO *m_rect;
     Window    *m_parent;
