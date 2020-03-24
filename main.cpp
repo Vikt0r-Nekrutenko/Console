@@ -16,8 +16,8 @@ public:
         m_controls.push_back(box2);
 
         box1->mouseEvent = TMouseEventHandler(&my_window::onBox1Clicked);
-        box2->mouseEvent = TMouseEventHandler(&my_window::onBox2Clicked);
 
+        box1->setText("some text and something else");
         box1->show();
         box2->show();
     }
@@ -27,16 +27,9 @@ public:
         delete box1;
     }
 
-    void onBox1Clicked(const MouseRecord rect) { }
-
-    void onBox2Clicked(const MouseRecord rect) {
-        if (rect.button == MouseButton::RIGHT && rect.isPressed)
-        {
-
-        } else if (rect.button == MouseButton::LEFT && rect.isPressed) {
-            int w = std::atoi(box1->getText().c_str());
-            int h = std::atoi(box2->getText().c_str());
-            setFontParams(w, h);
+    void onBox1Clicked(const MouseRecord rect) {
+        if (rect.button == MouseButton::RIGHT && rect.isPressed) {
+            MessageBoxA(m_wnd, box1->getText().c_str(), "", MB_ICONEXCLAMATION);
         }
     }
 
@@ -47,5 +40,6 @@ int main()
 {
     my_window wnd;
     windowEventProc(&wnd);
+
     return 0;
 }

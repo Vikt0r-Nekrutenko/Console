@@ -88,56 +88,31 @@ bool InputBox::isControlKeyPressed(unsigned short key)
     switch (key) {
     case VK_LEFT:
     {
-        if(m_innerCursor == 0) {
-            if(m_lastSymbol > m_lenVisibleText) {
-                m_lastSymbol--;
-            }
-            if(m_firstSymbol != 0) {
-                m_firstSymbol--;
-            }
-        }
-        if(m_symbolInText > 0) {
-            m_symbolInText--;
-        }
         scrollLeft();
         show();
         return true;
     }
     case VK_RIGHT:
     {
-        if(m_innerCursor == m_lenVisibleText){
-            if(m_lastSymbol < m_text.length()) {
-                m_lastSymbol++;
-            }
-            if(m_lastSymbol - m_firstSymbol - 1 >= m_lenVisibleText) {
-                m_firstSymbol++;
-            }
-        }
-        if(m_symbolInText < m_text.length()) {
-            m_symbolInText++;
-        }
         scrollRight();
         show();
         return true;
     }
     case VK_BACK:
     {
-        if(!m_text.empty()) {
-            if(m_symbolInText > 0) {
-                m_symbolInText--;
-                m_text.erase(m_symbolInText, 1);
-
-                if (m_text.length() < m_lenVisibleText || m_lastSymbol > m_text.length()) {
-                    m_lastSymbol--;
-                }
-                if(m_firstSymbol != 0) {
-                    m_firstSymbol--;
-                } else {
-                    scrollLeft();
-                }
-                show();
-            }
+        if (!m_text.empty() && m_symbolInText) {
+            m_text.erase(m_symbolInText - 1, 1);
         }
+        scrollLeft();
+        show();
+        return true;
+    }
+    case VK_DELETE:
+    {
+        if (!m_text.empty() && m_symbolInText < m_text.length()) {
+            m_text.erase(m_symbolInText + 1, 1);
+        }
+        show();
         return true;
     }
     default:
@@ -147,10 +122,10 @@ bool InputBox::isControlKeyPressed(unsigned short key)
 
 void InputBox::showText()
 {
-    for (size_t i = 0; i < m_lenVisibleText; i++) {
+    for (size_t i = 0; i <= m_lenVisibleText; i++) {
         get(i).Char.AsciiChar = ' ';
     }
-    for(size_t i = m_firstSymbol, j = 0; i < m_lastSymbol; i++, j++) {
+    for(size_t i = m_firstSymbol, j = 0; i < m_text.length() && i < m_lastSymbol; i++, j++) {
         get(j).Char.AsciiChar = m_text.at(i);
     }
 }
@@ -164,14 +139,26 @@ void InputBox::moveCursor()
 
 void InputBox::scrollRight()
 {
+    if (m_symbolInText < m_text.length()) {
+        m_symbolInText++;
+    }
     if(m_innerCursor < m_lenVisibleText && m_innerCursor < m_text.length()) {
         m_innerCursor++;
+    } else {
+        if (m_lastSymbol - m_firstSymbol == m_lenVisibleText + 1) m_firstSymbol++;
+        if (m_lastSymbol < m_text.length()) m_lastSymbol++;
     }
 }
 
 void InputBox::scrollLeft()
 {
+    if (m_symbolInText > 0) {
+        m_symbolInText--;
+    }
     if(m_innerCursor > 0) {
         m_innerCursor--;
+    } else {
+        if (m_firstSymbol > 0) m_firstSymbol--;
+        if (m_lastSymbol  > 0 && m_lastSymbol > m_lenVisibleText) m_lastSymbol--;
     }
 }
