@@ -7,7 +7,7 @@
 class InputBox : public Box
 {
 public:
-    InputBox(const Window *parent, const short x, const short y, const short width, const short height, const std::string title = "Input");
+    InputBox(const Window *parent, const short x, const short y, const short width = 10, const short height = 3, const std::string title = "Input");
     void show() override;
     void resize(const short width, const short height) override;
     void setText(const std::string &text);

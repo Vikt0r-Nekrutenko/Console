@@ -1,7 +1,6 @@
 #include "Window.hpp"
 #include "Box.hpp"
 #include <ctime>
-#include <string>
 
 Window::Window(const short x, const short y, const short width, const short height)
     : m_out(GetStdHandle(STD_OUTPUT_HANDLE)),
@@ -85,6 +84,11 @@ void Window::addNewControl(const std::initializer_list<Box *> controls)
     }
 }
 
+void Window::secondElased(const float fps)
+{
+    SetConsoleTitleA(std::to_string(fps).c_str());
+}
+
 void Window::setCursorPosition(const short x, const short y) const
 {
     SetConsoleCursorPosition(m_out, { x, y });
@@ -139,16 +143,19 @@ void windowEventProc(Window *window)
     INPUT_RECORD ir[32];
     DWORD n;
     Box *activeControl = nullptr;
-    float dt = 0.f, time = 0.f, frames = 0.f;
+    float deltaTime = 0.f, elapsedTime = 0.f;
+    size_t frames = 0ull;
 
     while (true)
     {
-        if (time > 1.f) {
-            SetConsoleTitleA(std::to_string(frames/time).c_str());
-            time = frames = 0;
+        if (elapsedTime > 1.f) {
+            window->secondElased(elapsedTime / frames);
+            elapsedTime = frames = 0;
         }
 
         time_t begin = clock();
+
+        window->update(deltaTime);
 
         GetNumberOfConsoleInputEvents(window->m_in, &n);
         if (n > 0) {
@@ -232,8 +239,8 @@ void windowEventProc(Window *window)
             }
         }
 
-        dt = (clock() - begin) / 1000.f;
-        time += dt;
+        deltaTime = (clock() - begin) / 1000.f;
+        elapsedTime += deltaTime;
         ++frames;
     }
 }

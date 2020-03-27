@@ -10,6 +10,13 @@ double fRand(double fMin, double fMax) {
     return fMin + (double(rand()) / RAND_MAX) * (fMax - fMin);
 }
 
+class Renderer : public Box
+{
+public:
+    Renderer(const Window *parent, const short x, const short y, const short width, const short height, const std::string title = "Renderer");
+
+};
+
 class my_window : public Window {
 public:
     my_window()
@@ -43,8 +50,7 @@ public:
     }
     void onBox3Clicked(const MouseRecord rect) {
         if (rect.button == MouseButton::RIGHT && rect.isPressed) {
-//            box3->setText(std::to_string(box2->getNumber() + box1->getNumber()));
-            box3->move(box1->getNumber(), box2->getNumber());
+            box3->setText(std::to_string(box2->getNumber() + box1->getNumber()));
         }
     }
     NumericBox *box1;
