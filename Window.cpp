@@ -1,6 +1,6 @@
 #include "Window.hpp"
 #include "Box.hpp"
-#include <iostream>
+#include <ctime>
 
 Window::Window(const short x, const short y, const short width, const short height)
     : m_out(GetStdHandle(STD_OUTPUT_HANDLE)),
@@ -125,88 +125,107 @@ const HANDLE &Window::out() const
     return m_out;
 }
 
+#include <string>
 void windowEventProc(Window *window)
 {
-    INPUT_RECORD ir;
+    INPUT_RECORD ir[32];
     DWORD n;
-    static Box *activeControl = nullptr;
+    Box *activeControl = nullptr;
+    float dt = 0.f, time = 0.f, frames = 0.f;
 
-    while (ir.Event.KeyEvent.wVirtualKeyCode != VK_ESCAPE)
+    while (true)
     {
-        WaitForSingleObject(window->m_in, INFINITE);
-        ReadConsoleInputA(window->m_in, &ir, 1, &n);
+        if (time > 1.f) {
+            SetConsoleTitleA(std::to_string(frames/time).c_str());
+            time = frames = 0;
+        }
 
-        switch (ir.EventType)
-        {
-        case MOUSE_EVENT:
-        {
-            short x = ir.Event.MouseEvent.dwMousePosition.X;
-            short y = ir.Event.MouseEvent.dwMousePosition.Y;
+        time_t begin = clock();
 
-            auto cursorInControl = [x, y](const Box *control) -> bool {
-                if (x > control->getFrame().Left && x < control->getFrame().Right && y > control->getFrame().Top && y < control->getFrame().Bottom) {
-                    return true;
-                }
-                return false;
-            };
+        GetNumberOfConsoleInputEvents(window->m_in, &n);
+        if (n > 0) {
+            ReadConsoleInputA(window->m_in, ir, n, &n);
 
-            auto findControl = [cursorInControl, &window](void) -> bool {
-                for (Box *control : window->m_controls) {
-                    if (cursorInControl(control)) {
+            for (DWORD i = 0; i < n; i++) {
+                switch (ir[i].EventType)
+                {
+                case MOUSE_EVENT:
+                {
+                    short x = ir[i].Event.MouseEvent.dwMousePosition.X;
+                    short y = ir[i].Event.MouseEvent.dwMousePosition.Y;
+
+                    auto cursorInControl = [x, y](const Box *control) -> bool {
+                        if (x > control->getFrame().Left && x < control->getFrame().Right && y > control->getFrame().Top && y < control->getFrame().Bottom) {
+                            return true;
+                        }
+                        return false;
+                    };
+
+                    auto findControl = [&activeControl, cursorInControl, &window](void) -> bool {
+                        for (Box *control : window->m_controls) {
+                            if (cursorInControl(control)) {
+                                if (activeControl != nullptr) {
+                                    activeControl->deactivate();
+                                }
+                                activeControl = control;
+                                activeControl->activate();
+                                return true;
+                            }
+                        }
                         if (activeControl != nullptr) {
                             activeControl->deactivate();
+                            activeControl = nullptr;
                         }
-                        activeControl = control;
-                        activeControl->activate();
-                        return true;
-                    }
-                }
-                if (activeControl != nullptr) {
-                    activeControl->deactivate();
-                    activeControl = nullptr;
-                }
-                return false;
-            };
+                        return false;
+                    };
 
-            if (ir.Event.MouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED) {
-                if (findControl()){
-                    activeControl->mouseEventHandler(window, { MouseButton::LEFT, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
-                } else {
-                    window->mouseEventHandler(window, { MouseButton::LEFT, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
+                    if (ir[i].Event.MouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED) {
+                        if (findControl()){
+                            activeControl->mouseEventHandler(window, { MouseButton::LEFT, ir[i].Event.MouseEvent.dwMousePosition, !ir[i].Event.MouseEvent.dwEventFlags ? true : false });
+                        } else {
+                            window->mouseEventHandler(window, { MouseButton::LEFT, ir[i].Event.MouseEvent.dwMousePosition, !ir[i].Event.MouseEvent.dwEventFlags ? true : false });
+                        }
+                    } else if (ir[i].Event.MouseEvent.dwButtonState == RIGHTMOST_BUTTON_PRESSED) {
+                        if (findControl()){
+                            activeControl->mouseEventHandler(window, { MouseButton::RIGHT, ir[i].Event.MouseEvent.dwMousePosition, !ir[i].Event.MouseEvent.dwEventFlags ? true : false });
+                        } else {
+                            window->mouseEventHandler(window, { MouseButton::RIGHT, ir[i].Event.MouseEvent.dwMousePosition, !ir[i].Event.MouseEvent.dwEventFlags ? true : false });
+                        }
+                    }
+                    if (ir[i].Event.MouseEvent.dwEventFlags == MOUSE_MOVED) {
+                        if (activeControl != nullptr && cursorInControl(activeControl)){
+                            activeControl->mouseEventHandler(window, { MouseButton::NONE, ir[i].Event.MouseEvent.dwMousePosition, !ir[i].Event.MouseEvent.dwEventFlags ? true : false });
+                        } else {
+                            window->mouseEventHandler(window, { MouseButton::NONE, ir[i].Event.MouseEvent.dwMousePosition, !ir[i].Event.MouseEvent.dwEventFlags ? true : false });
+                        }
+                    }
+                    break;
                 }
-            } else if (ir.Event.MouseEvent.dwButtonState == RIGHTMOST_BUTTON_PRESSED) {
-                if (findControl()){
-                    activeControl->mouseEventHandler(window, { MouseButton::RIGHT, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
-                } else {
-                    window->mouseEventHandler(window, { MouseButton::RIGHT, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
+                case KEY_EVENT:
+                {
+                    if (ir[i].Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE) {
+                        return;
+                    } else if (ir[i].Event.KeyEvent.bKeyDown) {
+                        if (activeControl == nullptr) {
+                            window->keyEventHandler(window, { true, ir[i].Event.KeyEvent.uChar.AsciiChar, ir[i].Event.KeyEvent.wVirtualKeyCode });
+                        } else {
+                            activeControl->keyEventHandler(window, { true, ir[i].Event.KeyEvent.uChar.AsciiChar, ir[i].Event.KeyEvent.wVirtualKeyCode });
+                        }
+                    } else {
+                        if (activeControl == nullptr) {
+                            window->keyEventHandler(window, { false, ir[i].Event.KeyEvent.uChar.AsciiChar, ir[i].Event.KeyEvent.wVirtualKeyCode });
+                        } else {
+                            activeControl->keyEventHandler(window, { false, ir[i].Event.KeyEvent.uChar.AsciiChar, ir[i].Event.KeyEvent.wVirtualKeyCode });
+                        }
+                    }
+                    break;
+                }
                 }
             }
-            if (ir.Event.MouseEvent.dwEventFlags == MOUSE_MOVED) {
-                if (activeControl != nullptr && cursorInControl(activeControl)){
-                    activeControl->mouseEventHandler(window, { MouseButton::NONE, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
-                } else {
-                    window->mouseEventHandler(window, { MouseButton::NONE, ir.Event.MouseEvent.dwMousePosition, !ir.Event.MouseEvent.dwEventFlags ? true : false });
-                }
-            }
-            break;
         }
-        case KEY_EVENT:
-            if (ir.Event.KeyEvent.bKeyDown) {
-                if (activeControl == nullptr) {
-                    window->keyEventHandler(window, { true, ir.Event.KeyEvent.uChar.AsciiChar, ir.Event.KeyEvent.wVirtualKeyCode });
-                } else {
-                    activeControl->keyEventHandler(window, { true, ir.Event.KeyEvent.uChar.AsciiChar, ir.Event.KeyEvent.wVirtualKeyCode });
-                }
-            } else {
-                if (activeControl == nullptr) {
-                    window->keyEventHandler(window, { false, ir.Event.KeyEvent.uChar.AsciiChar, ir.Event.KeyEvent.wVirtualKeyCode });
-                } else {
-                    activeControl->keyEventHandler(window, { false, ir.Event.KeyEvent.uChar.AsciiChar, ir.Event.KeyEvent.wVirtualKeyCode });
-                }
-            }
-            break;
-        case CLOSE_EVENT:
-            return;
-        }
+
+        dt = (clock() - begin) / 1000.f;
+        time += dt;
+        ++frames;
     }
 }

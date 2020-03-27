@@ -9,8 +9,6 @@ class InputBox : public Box
 public:
     InputBox(const Window *parent, const short x, const short y, const short width, const short height);
     void show() override;
-    void activate() override;
-    void deactivate() override;
     void resize(const short width, const short height) override;
     void setText(const std::string &text);
 
@@ -26,7 +24,6 @@ protected:
     virtual bool isControlKeyPressed(unsigned short key);
     void keyEventHandler(Window *sender, const KeyRecord keyRecord) override;
     void showText();
-    void moveCursor();
     void scrollRight();
     void scrollLeft();
 };

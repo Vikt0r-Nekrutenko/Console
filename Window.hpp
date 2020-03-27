@@ -9,11 +9,8 @@
 namespace
 {
     const short CENTER { 0xfff };
-    const short DEF_WND_WIDTH { 640 };
-    const short DEF_WND_HEIGHT{ 480 };
-    const wchar_t *Lucida_Console { L"Lucida Console" };
-    const wchar_t *Consolas       { L"Consolas" };
-    const wchar_t *Terminal       { L"Terminal" };
+    const short DEF_WND_WIDTH { 800 };
+    const short DEF_WND_HEIGHT{ 400 };
 }
 
 class Box;
@@ -25,12 +22,13 @@ public:
     Window(const short x = CENTER, const short y = CENTER, const short width = DEF_WND_WIDTH, const short height = DEF_WND_HEIGHT);
     void resize(const short width, const short height) override;
     void move(const short x, const short y) override;
-    void setFontParams(const short width = 8, const short height = 12, const bool isBold = false, const wchar_t *fontFaceName = Terminal);
-    void setCursorParams(const bool isVisible = false, const short size = 1) const;
-    void setCursorPosition(const short x, const short y) const;
+    void setFontParams(const short width = 8, const short height = 12, const bool isBold = false, const wchar_t *fontFaceName = L"Terminal");
     const HANDLE &out() const;
 
+    void setCursorPosition(const short x, const short y) const;
 protected:
+    void setCursorParams(const bool isVisible = false, const short size = 1) const;
+
     std::vector <Box *> m_controls;
     COORD m_windowSize, m_placeSize;
     HANDLE m_out, m_in;

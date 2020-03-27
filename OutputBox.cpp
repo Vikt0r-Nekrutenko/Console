@@ -21,14 +21,12 @@ bool OutputBox::isControlKeyPressed(unsigned short key)
     {
         scrollLeft();
         show();
-        moveCursor();
         return true;
     }
     case VK_RIGHT:
     {
         scrollRight();
         show();
-        moveCursor();
         return true;
     }
     default:

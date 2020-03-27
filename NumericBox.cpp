@@ -23,16 +23,10 @@ void NumericBox::keyEventHandler(Window *sender, const KeyRecord keyRecord)
             (keyRecord.symbol == '.' && m_text.find('.') == std::string::npos) ||
             (keyRecord.symbol == '-' && m_symbolInText == 0 && m_text.find('-') == std::string::npos))
         {
-            m_text.insert(m_symbolInText++, 1, keyRecord.symbol);
-            m_lastSymbol++;
+            m_text.insert(m_symbolInText, 1, keyRecord.symbol);
 
-            if (m_text.length() > m_lenVisibleText) {
-                m_firstSymbol++;
-            } else {
-                scrollRight();
-            }
+            scrollRight();
             show();
-            moveCursor();
         }
     }
     keyEvent.call(sender, keyRecord);

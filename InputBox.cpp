@@ -15,19 +15,6 @@ void InputBox::show()
     Box::show();
 }
 
-void InputBox::activate()
-{
-    Box::activate();
-    moveCursor();
-    m_parent->setCursorParams(true);
-}
-
-void InputBox::deactivate()
-{
-    Box::deactivate();
-    m_parent->setCursorParams(false);
-}
-
 void InputBox::resize(const short width, const short height)
 {
     Box::resize(width, height);
@@ -51,66 +38,15 @@ void InputBox::setText(const std::string &text)
 
 void InputBox::keyEventHandler(Window *sender, const KeyRecord keyRecord)
 {
-    /*{
-        m_parent->setCursorPosition(50, 0);
-        printf("                        ");
-        m_parent->setCursorPosition(50, 0);
-        printf("first: %d", m_firstSymbol);
-        m_parent->setCursorPosition(50, 1);
-        printf("                        ");
-        m_parent->setCursorPosition(50, 1);
-        printf("last: %d", m_lastSymbol);
-        m_parent->setCursorPosition(50, 2);
-        printf("                        ");
-        m_parent->setCursorPosition(50, 2);
-        printf("in txt: %d", m_symbolInText);
-        m_parent->setCursorPosition(50, 3);
-        printf("                        ");
-        m_parent->setCursorPosition(50, 3);
-        printf("txt: %d", m_text.length());
-    }*/
-
     if (keyRecord.isPressed && !isControlKeyPressed(keyRecord.keyCode)) {
         if ((keyRecord.symbol >= '0' && keyRecord.symbol <= 'z') || keyRecord.keyCode == VK_SPACE) {
             m_text.insert(m_symbolInText, 1, keyRecord.symbol);
 
-            if (m_lastSymbol <= m_text.length()) {
-                m_lastSymbol++;
-            }
-            if (m_text.length() > m_lenVisibleText) {
-                m_firstSymbol++;
-            } else {
-                scrollRight();
-            }
+            scrollRight();
             show();
-            moveCursor();
         }
     }
     keyEvent.call(sender, keyRecord);
-
-    /*{
-        m_parent->setCursorPosition(50, 0);
-        printf("                        ");
-        m_parent->setCursorPosition(50, 0);
-        printf("first: %d", m_firstSymbol);
-        m_parent->setCursorPosition(50, 1);
-        printf("                        ");
-        m_parent->setCursorPosition(50, 1);
-        printf("last: %d", m_lastSymbol);
-        m_parent->setCursorPosition(50, 2);
-        printf("                        ");
-        m_parent->setCursorPosition(50, 2);
-        printf("in txt: %d", m_symbolInText);
-        m_parent->setCursorPosition(50, 3);
-        printf("                        ");
-        m_parent->setCursorPosition(50, 3);
-        printf("txt: %d", m_text.length());
-        m_parent->setCursorPosition(50, 4);
-        printf("                        ");
-        m_parent->setCursorPosition(50, 4);
-        printf("inner: %d", m_innerCursor);
-        moveCursor();
-    }*/
 }
 
 CHAR_INFO &InputBox::get(const size_t index)
@@ -136,14 +72,12 @@ bool InputBox::isControlKeyPressed(unsigned short key)
     {
         scrollLeft();
         show();
-        moveCursor();
         return true;
     }
     case VK_RIGHT:
     {
         scrollRight();
         show();
-        moveCursor();
         return true;
     }
     case VK_BACK:
@@ -153,16 +87,14 @@ bool InputBox::isControlKeyPressed(unsigned short key)
         }
         scrollLeft();
         show();
-        moveCursor();
         return true;
     }
     case VK_DELETE:
     {
         if (!m_text.empty() && m_symbolInText < m_text.length()) {
-            m_text.erase(m_symbolInText + 1, 1);
+            m_text.erase(m_symbolInText, 1);
         }
         show();
-        moveCursor();
         return true;
     }
     default:
@@ -180,20 +112,15 @@ void InputBox::showText()
     }
 }
 
-void InputBox::moveCursor()
-{
-    short x = short(m_innerCursor / size_t(m_size.X - 2));
-    short y = short(m_innerCursor % size_t(m_size.X - 2));
-    m_parent->setCursorPosition(m_frame.Left + y + 1, m_frame.Top + x + 1);
-}
-
 void InputBox::scrollRight()
 {
     if (m_symbolInText < m_text.length()) {
         m_symbolInText++;
     }
     if (m_innerCursor < m_lenVisibleText && m_innerCursor < m_text.length() - m_firstSymbol) {
+        get(m_innerCursor).Attributes = WORD(m_color);
         m_innerCursor++;
+        get(m_innerCursor).Attributes |= WORD(m_color) * 10;
     } else {
         if (m_lastSymbol - m_firstSymbol == m_lenVisibleText + 1) m_firstSymbol++;
         if (m_lastSymbol < m_text.length()) m_lastSymbol++;
@@ -206,7 +133,9 @@ void InputBox::scrollLeft()
         m_symbolInText--;
     }
     if(m_innerCursor > 0) {
+        get(m_innerCursor).Attributes = WORD(m_color);
         m_innerCursor--;
+        get(m_innerCursor).Attributes |= WORD(m_color) * 10;
     } else {
         if (m_firstSymbol > 0) m_firstSymbol--;
         if (m_lastSymbol  > 0 && m_lastSymbol > m_lenVisibleText) m_lastSymbol--;
