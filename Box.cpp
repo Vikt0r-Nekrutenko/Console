@@ -1,8 +1,9 @@
 #include "Box.hpp"
 #include "Window.hpp"
 
-Box::Box(const Window *parent, const short x, const short y, const short width, const short height)
-    : m_color(Color::DARK_BLUE),
+Box::Box(const Window *parent, const short x, const short y, const short width, const short height, const std::string title)
+    : m_title(title),
+      m_color(Color::FG_GREY),
       m_rect(nullptr),
       m_parent { const_cast<Window *>(parent) }
 {
@@ -12,6 +13,7 @@ Box::Box(const Window *parent, const short x, const short y, const short width, 
     m_frame = {x, y, short(x + m_size.X), short(y + m_size.Y)};
 
     resize(m_size.X, m_size.Y);
+    setTitle(title);
 }
 
 Box::~Box()
@@ -48,10 +50,12 @@ void Box::resize(const short width, const short height)
         }
     }
 
-    get(0, 0).Char.AsciiChar                        = char(218); // „¡
-    get(m_size.X - 1, 0).Char.AsciiChar             = char(191); // „¢
-    get(0, m_size.Y - 1).Char.AsciiChar             = char(192); // „¤
-    get(m_size.X - 1, m_size.Y - 1).Char.AsciiChar  = char(217); // „£
+    get(0, 0).Char.AsciiChar                        = char(218);
+    get(m_size.X - 1, 0).Char.AsciiChar             = char(191);
+    get(0, m_size.Y - 1).Char.AsciiChar             = char(192);
+    get(m_size.X - 1, m_size.Y - 1).Char.AsciiChar  = char(217);
+
+    setTitle(m_title);
 }
 
 void Box::move(const short x, const short y)
@@ -66,6 +70,13 @@ void Box::fill(const Color color, const char symbol)
     for (int i = m_size.X * m_size.Y - 1; i >= 0; --i) {
         m_rect[i].Char.AsciiChar = (symbol == UNDEF_SYMBOL) ? m_rect[i].Char.AsciiChar : symbol;
         m_rect[i].Attributes = WORD(color);
+    }
+}
+
+void Box::setTitle(const std::string title)
+{
+    for (size_t i = 1ull; i <= title.length() && i < size_t(m_size.X - 1); i++) {
+        m_rect[i].Char.AsciiChar = title[i - 1];
     }
 }
 

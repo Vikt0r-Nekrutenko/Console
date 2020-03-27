@@ -76,6 +76,19 @@ void Window::setCursorParams(const bool isVisible, const short size) const
     SetConsoleCursorInfo(m_out, &inf);
 }
 
+void Window::addNewControl(const std::initializer_list<Box *> controls)
+{
+    for (std::initializer_list<Box *>::iterator it = controls.begin(); it != controls.end(); it++) {
+        m_controls.push_back(*it);
+        (*it)->show();
+    }
+}
+
+void Window::secondElased(const float fps)
+{
+    SetConsoleTitleA(std::to_string(fps).c_str());
+}
+
 void Window::setCursorPosition(const short x, const short y) const
 {
     SetConsoleCursorPosition(m_out, { x, y });
@@ -83,20 +96,20 @@ void Window::setCursorPosition(const short x, const short y) const
 
 void Window::resizePlace(const short width, const short height)
 {
-    if(width >= m_placeSize.X && height >= m_placeSize.Y){ /// „u„ƒ„|„y „r„r„€„t„y„}„„u „‚„p„x„}„u„‚„ „q„€„|„Ž„Š„u „~„„~„u„Š„~„y„‡: „y„x„}„u„~„‘„u„} „‚„p„x„}„u„‚ „q„…„†„u„‚„p, „y„x„}„u„~„‘„u„} „‚„p„x„}„u„‚ „€„{„~„p
+    if(width >= m_placeSize.X && height >= m_placeSize.Y){
         resizeBuffer(width, height);
         resizeRect(width, height);
-    } else if(width <= m_placeSize.X && height <= m_placeSize.Y){ /// „u„ƒ„|„y „r„r„€„t„y„}„„u „‚„p„x„}„u„‚„ „}„u„~„Ž„Š„u „~„„~„u„Š„~„y„‡: „y„x„}„u„~„‘„u„} „‚„p„x„}„u„‚ „€„{„~„p, „x„p„„„u„} „q„…„†„u„‚„p
+    } else if(width <= m_placeSize.X && height <= m_placeSize.Y){
         resizeRect(width, height);
         resizeBuffer(width, height);
-    } else if(width > m_placeSize.X && height < m_placeSize.Y){ /// „u„ƒ„|„y „Š„y„‚„y„~„p „q„€„|„Ž„Š„u, „p „r„„ƒ„€„„„p „}„u„~„Ž„Š„u, „„‚„€„ƒ„„„€ „‚„p„x„}„u„‚ „y„x„}„u„~„y„„„Ž „~„u „„€„|„…„‰„y„„„Ž„ƒ„‘ „x„p „ƒ„‰„u„„ „„‚„p„r„y„|„p "„q„…„†„u„‚ „~„y„{„€„s„t„p „~„u „}„u„~„Ž„Š„u „€„{„~„p"
-        resizeBuffer(width, m_placeSize.Y); /// „ƒ„~„p„‰„p„|„p „y„x„}„u„~„‘„u„} „Š„y„‚„y„~„… „q„…„†„u„‚„p(„r„„ƒ„€„„„… „€„ƒ„„„p„r„|„‘„u„})
-        resizeRect(width, height); /// „„„u„„u„‚„Ž „‚„p„ƒ„„„‘„s„y„r„p„u„} „€„{„~„€(„q„…„†„u„‚ „B„R„E„C„D„@ „q„€„|„Ž„Š„u „€„{„~„p)
-        resizeBuffer(width, height); /// „„€„t„„„‘„s„y„r„p„u„} „q„…„†„u„‚
-    } else if(width < m_placeSize.X && height > m_placeSize.Y){ /// „u„ƒ„|„y „Š„y„‚„y„~„p „}„u„~„Ž„Š„u, „p „r„„ƒ„€„„„p „q„€„|„Ž„Š„u „ƒ„y„„„…„p„ˆ„y„‘ „„„p„w„u
-        resizeBuffer(m_placeSize.X, height); /// „}„u„~„‘„u„} „r„„ƒ„€„„„… „€„ƒ„„„p„r„|„‘„‘ „Š„y„‚„y„~„…
-        resizeRect(width, height); /// „q„…„†„u„‚ „q„€„|„Ž„Š„u „€„{„~„p
-        resizeBuffer(width, height); /// „„€„t„„„‘„s„y„r„p„u„} „q„…„†„u„‚
+    } else if(width > m_placeSize.X && height < m_placeSize.Y) {
+        resizeBuffer(width, m_placeSize.Y);
+        resizeRect(width, height);
+        resizeBuffer(width, height);
+    } else if(width < m_placeSize.X && height > m_placeSize.Y){
+        resizeBuffer(m_placeSize.X, height);
+        resizeRect(width, height);
+        resizeBuffer(width, height);
     } else {
         MessageBoxA(nullptr, "Uncorrected place size!", "Alarm", MB_ICONERROR);
     }
@@ -125,22 +138,24 @@ const HANDLE &Window::out() const
     return m_out;
 }
 
-#include <string>
 void windowEventProc(Window *window)
 {
     INPUT_RECORD ir[32];
     DWORD n;
     Box *activeControl = nullptr;
-    float dt = 0.f, time = 0.f, frames = 0.f;
+    float deltaTime = 0.f, elapsedTime = 0.f;
+    size_t frames = 0ull;
 
     while (true)
     {
-        if (time > 1.f) {
-            SetConsoleTitleA(std::to_string(frames/time).c_str());
-            time = frames = 0;
+        if (elapsedTime > 1.f) {
+            window->secondElased(elapsedTime / frames);
+            elapsedTime = frames = 0;
         }
 
         time_t begin = clock();
+
+        window->update(deltaTime);
 
         GetNumberOfConsoleInputEvents(window->m_in, &n);
         if (n > 0) {
@@ -224,8 +239,8 @@ void windowEventProc(Window *window)
             }
         }
 
-        dt = (clock() - begin) / 1000.f;
-        time += dt;
+        deltaTime = (clock() - begin) / 1000.f;
+        elapsedTime += deltaTime;
         ++frames;
     }
 }

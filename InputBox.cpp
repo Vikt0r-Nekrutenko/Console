@@ -1,8 +1,8 @@
 #include "InputBox.hpp"
 #include "Window.hpp"
 
-InputBox::InputBox(const Window *parent, const short x, const short y, const short width, const short height)
-    : Box(parent, x, y, width, height),
+InputBox::InputBox(const Window *parent, const short x, const short y, const short width, const short height, const std::string title)
+    : Box(parent, x, y, width, height, title),
       m_lenVisibleText(size_t((width - 2) * (height - 2)) - 1),
       m_lastSymbol(m_lenVisibleText)
 {
@@ -120,7 +120,7 @@ void InputBox::scrollRight()
     if (m_innerCursor < m_lenVisibleText && m_innerCursor < m_text.length() - m_firstSymbol) {
         get(m_innerCursor).Attributes = WORD(m_color);
         m_innerCursor++;
-        get(m_innerCursor).Attributes |= WORD(m_color) * 10;
+        get(m_innerCursor).Attributes |= COMMON_LVB_REVERSE_VIDEO;
     } else {
         if (m_lastSymbol - m_firstSymbol == m_lenVisibleText + 1) m_firstSymbol++;
         if (m_lastSymbol < m_text.length()) m_lastSymbol++;
@@ -135,7 +135,7 @@ void InputBox::scrollLeft()
     if(m_innerCursor > 0) {
         get(m_innerCursor).Attributes = WORD(m_color);
         m_innerCursor--;
-        get(m_innerCursor).Attributes |= WORD(m_color) * 10;
+        get(m_innerCursor).Attributes |= COMMON_LVB_REVERSE_VIDEO;
     } else {
         if (m_firstSymbol > 0) m_firstSymbol--;
         if (m_lastSymbol  > 0 && m_lastSymbol > m_lenVisibleText) m_lastSymbol--;

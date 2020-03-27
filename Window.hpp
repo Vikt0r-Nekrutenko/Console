@@ -4,8 +4,6 @@
 #include <vector>
 #include "BasicTemplate.hpp"
 
-#define CLOSE_EVENT 0xFF
-
 namespace
 {
     const short CENTER { 0xfff };
@@ -23,12 +21,16 @@ public:
     void resize(const short width, const short height) override;
     void move(const short x, const short y) override;
     void setFontParams(const short width = 8, const short height = 12, const bool isBold = false, const wchar_t *fontFaceName = L"Terminal");
+    void setCursorPosition(const short x, const short y) const;
+    void setCursorParams(const bool isVisible = false, const short size = 1) const;
+    void addNewControl(const std::initializer_list<Box *> controls);
+
+    virtual void secondElased(const float fps);
+    virtual void update(const float deltaTime) = 0;
+
     const HANDLE &out() const;
 
-    void setCursorPosition(const short x, const short y) const;
 protected:
-    void setCursorParams(const bool isVisible = false, const short size = 1) const;
-
     std::vector <Box *> m_controls;
     COORD m_windowSize, m_placeSize;
     HANDLE m_out, m_in;

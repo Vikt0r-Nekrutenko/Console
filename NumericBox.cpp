@@ -1,7 +1,7 @@
 #include "NumericBox.hpp"
 
-NumericBox::NumericBox(const Window *parent, const short x, const short y, const short width, const short height)
-    : InputBox(parent, x, y, width, height)
+NumericBox::NumericBox(const Window *parent, const short x, const short y, const short width, const short height, const std::string title)
+    : InputBox(parent, x, y, width, height, title)
 {
 
 }
