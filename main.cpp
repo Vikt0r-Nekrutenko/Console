@@ -14,21 +14,15 @@ class my_window : public Window {
 public:
     my_window()
         : Window(),
-          box1{ new NumericBox(this,  0, 0, 10, 5) },
+          box1{ new NumericBox(this,  0, 0, 10, 5, "SUppaDuPP@Fuc**ingBOX!") },
           box2{ new NumericBox(this, 12, 0, 10, 5) },
           box3{ new OutputBox(this, 24, 0, 10, 5) }
     {
-        m_controls.push_back(box1);
-        m_controls.push_back(box2);
-        m_controls.push_back(box3);
+        addNewControl({box1, box2, box3});
 
         box1->mouseEvent = TMouseEventHandler(&my_window::onBox1Clicked);
         box2->mouseEvent = TMouseEventHandler(&my_window::onBox2Clicked);
         box3->mouseEvent = TMouseEventHandler(&my_window::onBox3Clicked);
-
-        box1->show();
-        box2->show();
-        box3->show();
     }
     ~my_window() override
     {
