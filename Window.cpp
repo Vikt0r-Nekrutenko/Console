@@ -149,7 +149,7 @@ void windowEventProc(Window *window)
     while (true)
     {
         if (elapsedTime > 1.f) {
-            window->secondElased(elapsedTime / frames);
+            window->secondElased(frames / elapsedTime);
             elapsedTime = frames = 0;
         }
 

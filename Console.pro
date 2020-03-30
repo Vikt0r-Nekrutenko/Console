@@ -10,6 +10,7 @@ SOURCES += \
         InputBox.cpp \
         NumericBox.cpp \
         OutputBox.cpp \
+        Renderer.cpp \
         Window.cpp \
         main.cpp
 
@@ -20,4 +21,5 @@ HEADERS += \
     InputBox.hpp \
     NumericBox.hpp \
     OutputBox.hpp \
+    Renderer.hpp \
     Window.hpp

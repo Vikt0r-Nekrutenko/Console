@@ -54,9 +54,9 @@ public:
     virtual void show();
     virtual void activate();
     virtual void deactivate();
+    virtual void fill(const Color color = Color::FG_BLACK, const char symbol = UNDEF_SYMBOL);
     void resize(const short width, const short height) override;
     void move(const short x, const short y) override;
-    void fill( const Color color = Color::FG_BLACK, const char symbol = UNDEF_SYMBOL);
     void setTitle(const std::string title);
     const SMALL_RECT &getFrame() const;
 

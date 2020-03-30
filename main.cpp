@@ -1,6 +1,7 @@
 #include "Window.hpp"
 #include "OutputBox.hpp"
 #include "NumericBox.hpp"
+#include "Renderer.hpp"
 #include <vector>
 #include <iostream>
 
@@ -10,22 +11,17 @@ double fRand(double fMin, double fMax) {
     return fMin + (double(rand()) / RAND_MAX) * (fMax - fMin);
 }
 
-class Renderer : public Box
-{
-public:
-    Renderer(const Window *parent, const short x, const short y, const short width, const short height, const std::string title = "Renderer");
-
-};
-
 class my_window : public Window {
 public:
     my_window()
         : Window(),
-          box1{ new NumericBox(this,  0, 0, 10, 5, "SUppaDuPP@Fuc**ingBOX!") },
+          box1{ new NumericBox(this,  0, 0, 10, 5) },
           box2{ new NumericBox(this, 12, 0, 10, 5) },
-          box3{ new OutputBox(this, 24, 0, 10, 5) }
+          box3{ new OutputBox(this, 24, 0, 10, 5) },
+          renderer { new Renderer(this, 0, 6, 50, 30) }
     {
-        addNewControl({box1, box2, box3});
+        setFontParams(8, 8);
+        addNewControl({box1, box2, box3, renderer});
 
         box1->mouseEvent = TMouseEventHandler(&my_window::onBox1Clicked);
         box2->mouseEvent = TMouseEventHandler(&my_window::onBox2Clicked);
@@ -53,9 +49,17 @@ public:
             box3->setText(std::to_string(box2->getNumber() + box1->getNumber()));
         }
     }
+    void update(const float deltaTime) override {
+        renderer->fill();
+        renderer->putPixel(rand() % renderer->width(),
+                           rand() % renderer->height(),
+                           '#', Color::FG_WHITE);
+        renderer->show();
+    }
     NumericBox *box1;
     NumericBox *box2;
     OutputBox *box3;
+    Renderer *renderer = nullptr;
 };
 
 int main()
